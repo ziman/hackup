@@ -13,8 +13,7 @@ run :: Config -> [String] -> IO ()
 run _ [] = putStrLn "usage: hackup add <file> [<file> <file> ..∘]"
 
 run config args = do
-    entries <- strictly <$> readEntries config
-    print entries
+    entries <- readEntries config
     new <- mapM addFile args
     writeEntries config $ new ++ filter ((`notElem` args) . name) entries
 
