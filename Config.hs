@@ -15,11 +15,11 @@ data Config = Config
 
 initialConfig :: Config
 initialConfig = Config
-    { backupDir = ""
+    { backupDir = "_some_bogus_unused_value_"
     }
 
 readConfig :: IO Config
 readConfig = read <$> readFile ".hackup/config"
 
 writeConfig :: Config -> IO ()
-writeConfig = writeFile ".hackup/config" . show
+writeConfig = writeFile ".hackup/config" . (++"\n") . show
