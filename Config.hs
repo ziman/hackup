@@ -7,6 +7,7 @@ module Config
     where
 
 import Control.Applicative
+import Control.Parallel.Strategies
 
 data Config = Config
     { fEntries :: String
@@ -20,8 +21,11 @@ initialConfig = Config
     , fRoot    = ".hackup"
     }
 
+rnfId :: NFData a => a -> a
+rnfId x = x `using` rnf
+
 readConfig :: IO Config
-readConfig = read <$> readFile ".hackup/config"
+readConfig = read . rnfId <$> readFile ".hackup/config"
 
 writeConfig :: Config -> IO ()
 writeConfig = writeFile ".hackup/config" . (++"\n") . show
