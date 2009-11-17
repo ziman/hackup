@@ -14,6 +14,8 @@ import System.Posix.Types
 import Control.Applicative
 import Data.Word
 import Data.Char
+import Control.Parallel.Strategies
+import System.IO
 
 data Entry = Entry
     { name  :: String
@@ -23,9 +25,16 @@ data Entry = Entry
     }
     deriving (Show, Read)
 
+instance NFData Entry where
+    rnf (Entry n s d h) = rnf n `seq` s `seq` d `seq` rnf h
+
 readEntries :: Config -> IO [Entry]
-readEntries config = map (read . BS.unpack) . BS.split '\n'
-    . decompress <$> BS.readFile (fEntries config)
+readEntries config = do
+    f <- openFile (fEntries config) ReadMode
+    stuff <- decompress <$> BS.hGetContents f
+    let entries = map (read . BS.unpack) . BS.split '\n' $ stuff
+    rnf entries `seq` hClose f
+    return entries
 
 writeEntries :: Config -> [Entry] -> IO ()
 writeEntries config =
