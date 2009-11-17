@@ -36,6 +36,11 @@ readEntries config = do
     rnf entries `seq` hClose f
     return entries
 
+readEntriesLazily :: Config -> IO [Entry]
+readEntriesLazily config =
+    map (read . BS.unpack) . BS.split '\n' . decompress
+    <$> BS.readFile (fEntries config)
+
 writeEntries :: Config -> [Entry] -> IO ()
 writeEntries config =
       BS.writeFile (fEntries config)
