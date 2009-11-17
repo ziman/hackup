@@ -3,9 +3,8 @@ module Plugin.Status (run) where
 import Filelist
 import Config
 
-run :: [String] -> IO ()
-run _ = do
-    config <- readConfig
+run :: Config -> [String] -> IO ()
+run config _ = do
     entries <- readEntries config
     putStrLn "Entries: "
     print entries

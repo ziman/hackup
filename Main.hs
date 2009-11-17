@@ -3,6 +3,7 @@ import qualified Plugin.Init
 import qualified Plugin.Help
 import qualified Plugin.Deinit
 import qualified Plugin.Status
+import qualified Plugin.Add
 
 import Control.Monad
 import Data.List
@@ -11,10 +12,14 @@ import System.IO
 
 commands =
     [ ("init",      Plugin.Init.run)
-    , ("deinit",    Plugin.Deinit.run)
+    , ("deinit",    wrap Plugin.Deinit.run)
+    , ("status",    wrap Plugin.Status.run)
+    , ("add",       wrap Plugin.Add.run)
     , ("help",      Plugin.Help.run)
-    , ("status",    Plugin.Status.run)
     ]
+
+wrap :: (Config -> [String] -> IO ()) -> [String] -> IO ()
+wrap f args = flip f args =<< readConfig
 
 main :: IO ()
 main = do
