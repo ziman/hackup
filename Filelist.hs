@@ -1,5 +1,5 @@
 module Filelist
-    ( readEntries
+    ( readEntries, readEntriesLazily
     , writeEntries
     , Entry (..)
     )
