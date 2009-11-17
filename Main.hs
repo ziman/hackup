@@ -4,6 +4,7 @@ import qualified Plugin.Help
 import qualified Plugin.Deinit
 import qualified Plugin.Status
 import qualified Plugin.Add
+import qualified Plugin.Debug
 
 import Control.Monad
 import Data.List
@@ -14,6 +15,7 @@ commands =
     [ ("init",      Plugin.Init.run)
     , ("deinit",    wrap Plugin.Deinit.run)
     , ("status",    wrap Plugin.Status.run)
+    , ("debug",     wrap Plugin.Debug.run)
     , ("add",       wrap Plugin.Add.run)
     , ("help",      Plugin.Help.run)
     ]
