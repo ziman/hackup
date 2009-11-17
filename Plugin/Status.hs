@@ -9,3 +9,5 @@ run _ = do
     entries <- readEntries config
     putStrLn "Entries: "
     print entries
+    putStrLn "Config: "
+    print config
