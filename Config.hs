@@ -9,13 +9,15 @@ module Config
 import Control.Applicative
 
 data Config = Config
-    { backupDir :: String
+    { fEntries :: String
+    , fRoot    :: String
     }
     deriving (Read, Show)
 
 initialConfig :: Config
 initialConfig = Config
-    { backupDir = "_some_bogus_unused_value_"
+    { fEntries = ".hackup/entries"
+    , fRoot    = ".hackup"
     }
 
 readConfig :: IO Config
