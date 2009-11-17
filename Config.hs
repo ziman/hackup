@@ -1,6 +1,8 @@
 module Config
     ( Config (..)
     , readConfig
+    , writeConfig
+    , initialConfig
     )
     where
 
@@ -11,5 +13,13 @@ data Config = Config
     }
     deriving (Read, Show)
 
+initialConfig :: Config
+initialConfig = Config
+    { backupDir = ""
+    }
+
 readConfig :: IO Config
 readConfig = read <$> readFile ".hackup/config"
+
+writeConfig :: Config -> IO ()
+writeConfig = writeFile ".hackup/config" . show
