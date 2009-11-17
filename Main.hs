@@ -1,6 +1,7 @@
 import Config
 import qualified Plugin.Init
 import qualified Plugin.Help
+import qualified Plugin.Deinit
 
 import Control.Monad
 import Data.List
@@ -8,8 +9,9 @@ import System
 import System.IO
 
 commands =
-    [ ("init", Plugin.Init.run)
-    , ("help", Plugin.Help.run)
+    [ ("init",      Plugin.Init.run)
+    , ("deinit",    Plugin.Deinit.run)
+    , ("help",      Plugin.Help.run)
     ]
 
 main :: IO ()
