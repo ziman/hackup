@@ -2,6 +2,7 @@ import Config
 import qualified Plugin.Init
 import qualified Plugin.Help
 import qualified Plugin.Deinit
+import qualified Plugin.Status
 
 import Control.Monad
 import Data.List
@@ -12,6 +13,7 @@ commands =
     [ ("init",      Plugin.Init.run)
     , ("deinit",    Plugin.Deinit.run)
     , ("help",      Plugin.Help.run)
+    , ("status",    Plugin.Status.run)
     ]
 
 main :: IO ()
