@@ -49,7 +49,7 @@ addEntry fn = do
 addDir :: String -> IO [Entry]
 addDir fn = concat <$> (mapM addEntry . map (prefix++) . clean =<< getDirectoryContents fn)
   where
-    clean = filter (`notElem` [".",".."])
+    clean = filter (`notElem` [".","..",".hackup"])
     prefix = fn ++ "/"
 
 addFile :: String -> FileStatus -> IO Entry
