@@ -43,7 +43,7 @@ addEntry fn = do
     case classify status of
         Regular   -> (:[]) <$> addFile fn status
         Directory -> addDir fn
-        Symlink   -> (putStrLn $ "Ignoring symlink: " ++ fn) >> return []
+        Symlink   -> addEntry =<< readSymbolicLink fn
         Other     -> (putStrLn $ "Not a regular file: " ++ fn) >> return []
 
 addDir :: String -> IO [Entry]
