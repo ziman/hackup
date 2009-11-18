@@ -25,7 +25,10 @@ run config _ = do
     entries <- readEntriesLazily config
     statuses <- mapM inspect entries
     let pairs = zip statuses entries
-    mapM_ (\(s,e) -> putStrLn $ ' ':' ':schar s : "\t" ++ name e) $ filter ((/= Vanilla) . fst) pairs
+        changed = filter ((/= Vanilla) . fst) pairs
+    if null changed
+        then putStrLn "No changes, clean."
+        else mapM_ (\(s,e) -> putStrLn $ ' ':' ':schar s : "\t" ++ name e) changed
 
 schar Changed = 'M'
 schar _       = '?'
