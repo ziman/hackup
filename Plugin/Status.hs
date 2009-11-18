@@ -14,11 +14,14 @@ inspect entry = do
         then return Changed
         else if (modificationTime fstat <= date entry)
             then return Vanilla
+            else return Changed
+{-
             else do
                 newHash <- FileHash.hashFile (name entry)
                 if (newHash /= hash entry)
                     then return Changed
                     else return Vanilla
+-}
 
 run :: Config -> [String] -> IO ()
 run config _ = do

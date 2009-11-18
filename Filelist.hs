@@ -22,12 +22,12 @@ data Entry = Entry
     , inode :: FileID
     , size  :: FileOffset
     , date  :: EpochTime
-    , hash  :: Hash
+    -- , hash  :: Hash
     }
     deriving (Show, Read)
 
 instance NFData Entry where
-    rnf (Entry n i s d h) = rnf n `seq` i `seq` s `seq` d `seq` rnf h
+    rnf (Entry n i s d) = rnf n `seq` i `seq` s `seq` d `seq` ()
 
 readEntries :: FilePath -> IO [Entry]
 readEntries fname = do

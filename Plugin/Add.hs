@@ -53,12 +53,11 @@ addDir fn = concat <$> (mapM addEntry . map (prefix++) =<< saneDirectoryContents
 
 addFile :: String -> FileStatus -> IO Entry
 addFile fn status = do
-    fileHash <- FileHash.hashFile fn
+    --fileHash <- FileHash.hashFile fn
     return Entry
         { name  = fn
         , size  = fileSize status
         , date  = modificationTime status
-        , hash  = fileHash
         , inode = fileID status
         }
 
