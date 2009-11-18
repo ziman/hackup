@@ -19,6 +19,7 @@ import System.IO
 
 data Entry = Entry
     { name  :: String
+    , inode :: FileID
     , size  :: FileOffset
     , date  :: EpochTime
     , hash  :: Hash
@@ -26,7 +27,7 @@ data Entry = Entry
     deriving (Show, Read)
 
 instance NFData Entry where
-    rnf (Entry n s d h) = rnf n `seq` s `seq` d `seq` rnf h
+    rnf (Entry n i s d h) = rnf n `seq` i `seq` s `seq` d `seq` rnf h
 
 readEntries :: Config -> IO [Entry]
 readEntries config = do

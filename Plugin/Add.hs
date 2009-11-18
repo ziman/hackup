@@ -18,10 +18,10 @@ run _ [] = putStrLn "usage: hackup add <file> [<file> <file> ..∘]"
 
 run config args = do
     entries <- readEntries config
-    let oldEntries = M.fromList $ map (\e -> (name e, e)) entries
+    let oldEntries = M.fromList $ map (\e -> (inode e, e)) entries
         oldCount   = M.size oldEntries
     new <- concat <$> mapM addEntry args
-    let newEntries = M.fromList $ map (\e -> (name e, e)) new
+    let newEntries = M.fromList $ map (\e -> (inode e, e)) new
     let finalEntries = newEntries `M.union` oldEntries
         finalCount   = M.size finalEntries
     writeEntries config $ M.elems finalEntries
@@ -52,9 +52,10 @@ addFile :: String -> FileStatus -> IO Entry
 addFile fn status = do
     fileHash <- FileHash.hashFile fn
     return Entry
-        { name = fn
-        , size = fileSize status
-        , date = modificationTime status
-        , hash = fileHash
+        { name  = fn
+        , size  = fileSize status
+        , date  = modificationTime status
+        , hash  = fileHash
+        , inode = fileID status
         }
 
