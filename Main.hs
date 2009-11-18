@@ -1,10 +1,12 @@
 import Config
+
 import qualified Plugin.Init
 import qualified Plugin.Help
 import qualified Plugin.Deinit
 import qualified Plugin.Status
 import qualified Plugin.Add
 import qualified Plugin.Debug
+import qualified Plugin.Plan
 
 import Control.Monad
 import Data.List
@@ -17,6 +19,7 @@ commands =
     , ("status",    wrap Plugin.Status.run)
     , ("debug",     wrap Plugin.Debug.run)
     , ("add",       wrap Plugin.Add.run)
+    , ("plan",      wrap Plugin.Plan.run)
     , ("help",      Plugin.Help.run)
     ]
 
