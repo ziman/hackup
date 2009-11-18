@@ -47,9 +47,8 @@ addEntry fn = do
         Other     -> (putStrLn $ "Not a regular file: " ++ fn) >> return []
 
 addDir :: String -> IO [Entry]
-addDir fn = concat <$> (mapM addEntry . map (prefix++) . clean =<< getDirectoryContents fn)
+addDir fn = concat <$> (mapM addEntry . map (prefix++) =<< saneDirectoryContents fn)
   where
-    clean = filter (`notElem` [".","..",".hackup"])
     prefix = fn ++ "/"
 
 addFile :: String -> FileStatus -> IO Entry
