@@ -44,9 +44,19 @@ createPlan config pname psize = do
     let plancfg = defaultPlanConfig { partSizeLimit = sizeLimit }
     createDirectoryIfMissing True (planPath ++ "/parts")
     writeFile (planPath ++ "/config") (show plancfg)
+    createParts config pname plancfg
     putStrLn "Plan created."
   where
     planPath  = fRoot config ++ "/plans/" ++ pname
+
+createParts :: Config -> String -> PlanConfig -> IO ()
+createParts config pname pconfig = do
+    parts <- computePlan (partSizeLimit pconfig) <$> readEntriesLazily (fEntries config)
+    let numbers = replicateM 6 ['0'..'9']
+    mapM_ createPart $ zip parts numbers
+  where
+    planPath = fRoot config ++ "/plans/" ++ pname
+    createPart (es, nr) = writeEntries (planPath ++ "/parts/" ++ nr) es
 
 parseSize :: String -> Maybe Word64
 parseSize [] = Nothing

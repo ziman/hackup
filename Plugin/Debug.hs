@@ -5,7 +5,7 @@ import Config
 
 run :: Config -> [String] -> IO ()
 run config _ = do
-    entries <- readEntries config
+    entries <- readEntries (fEntries config)
     putStrLn "Entries: "
     print entries
     putStrLn "Config: "

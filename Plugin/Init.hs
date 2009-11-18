@@ -10,5 +10,5 @@ run args = do
     createDirectory ".hackup"
     let config = initialConfig
     writeConfig config
-    writeEntries config []
+    writeEntries (fEntries config) []
     putStrLn "Hackup initialized."

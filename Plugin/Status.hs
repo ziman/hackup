@@ -22,7 +22,7 @@ inspect entry = do
 
 run :: Config -> [String] -> IO ()
 run config _ = do
-    entries <- readEntriesLazily config
+    entries <- readEntriesLazily (fEntries config)
     statuses <- mapM inspect entries
     let pairs = zip statuses entries
         changed = filter ((/= Vanilla) . fst) pairs

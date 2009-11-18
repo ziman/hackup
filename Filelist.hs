@@ -29,22 +29,22 @@ data Entry = Entry
 instance NFData Entry where
     rnf (Entry n i s d h) = rnf n `seq` i `seq` s `seq` d `seq` rnf h
 
-readEntries :: Config -> IO [Entry]
-readEntries config = do
-    f <- openFile (fEntries config) ReadMode
+readEntries :: FilePath -> IO [Entry]
+readEntries fname = do
+    f <- openFile fname ReadMode
     stuff <- decompress <$> BS.hGetContents f
     let entries = map (read . BS.unpack) . BS.split '\n' $ stuff
     rnf entries `seq` hClose f
     return entries
 
-readEntriesLazily :: Config -> IO [Entry]
-readEntriesLazily config =
+readEntriesLazily :: FilePath -> IO [Entry]
+readEntriesLazily fname =
     map (read . BS.unpack) . BS.split '\n' . decompress
-    <$> BS.readFile (fEntries config)
+    <$> BS.readFile fname
 
-writeEntries :: Config -> [Entry] -> IO ()
-writeEntries config =
-      BS.writeFile (fEntries config)
+writeEntries :: FilePath -> [Entry] -> IO ()
+writeEntries fname =
+      BS.writeFile fname
     . compress . BS.intercalate nl . map (BS.pack . show)
   where
     nl = BS.pack "\n"

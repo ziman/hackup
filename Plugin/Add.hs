@@ -19,14 +19,14 @@ run :: Config -> [String] -> IO ()
 run _ [] = putStrLn "usage: hackup add <file> [<file> <file> ..∘]"
 
 run config args = do
-    entries <- readEntries config
+    entries <- readEntries (fEntries config)
     new <- concat <$> mapM (addEntry <=< canonicalizePath) args
     let oldEntries   = setify entries
         oldCount     = M.size oldEntries
         newEntries   = setify new
         finalEntries = newEntries `M.union` oldEntries
         finalCount   = M.size finalEntries
-    writeEntries config $ M.elems finalEntries
+    writeEntries (fEntries config) $ M.elems finalEntries
     putStrLn $ show (finalCount - oldCount) ++ " new file(s) added."
   where
     setify = M.fromList . map (name &&& id)
