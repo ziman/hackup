@@ -5,6 +5,7 @@ import Config
 import Filelist
 import qualified FileHash
 
+import Control.Arrow
 import Data.List
 import System.Posix.Files
 import System.Directory
@@ -18,14 +19,16 @@ run _ [] = putStrLn "usage: hackup add <file> [<file> <file> ..∘]"
 
 run config args = do
     entries <- readEntries config
-    let oldEntries = M.fromList $ map (\e -> (inode e, e)) entries
-        oldCount   = M.size oldEntries
     new <- concat <$> mapM addEntry args
-    let newEntries = M.fromList $ map (\e -> (inode e, e)) new
-    let finalEntries = newEntries `M.union` oldEntries
+    let oldEntries   = setify entries
+        oldCount     = M.size oldEntries
+        newEntries   = setify new
+        finalEntries = newEntries `M.union` oldEntries
         finalCount   = M.size finalEntries
     writeEntries config $ M.elems finalEntries
     putStrLn $ show (finalCount - oldCount) ++ " file(s) added."
+  where
+    setify = M.fromList . map (inode &&& id)
 
 classify status = 
     if isRegularFile status then Regular
