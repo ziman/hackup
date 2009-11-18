@@ -10,6 +10,7 @@ import Data.List
 import System.Posix.Files
 import System.Directory
 import Control.Applicative
+import Control.Monad
 import qualified Data.Map as M
 
 data Classification = Regular | Directory | Symlink | Other
@@ -19,7 +20,7 @@ run _ [] = putStrLn "usage: hackup add <file> [<file> <file> ..∘]"
 
 run config args = do
     entries <- readEntries config
-    new <- concat <$> mapM addEntry args
+    new <- concat <$> mapM (addEntry <=< canonicalizePath) args
     let oldEntries   = setify entries
         oldCount     = M.size oldEntries
         newEntries   = setify new
@@ -28,7 +29,7 @@ run config args = do
     writeEntries config $ M.elems finalEntries
     putStrLn $ show (finalCount - oldCount) ++ " file(s) added."
   where
-    setify = M.fromList . map (inode &&& id)
+    setify = M.fromList . map (name &&& id)
 
 classify status = 
     if isRegularFile status then Regular
