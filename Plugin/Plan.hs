@@ -4,6 +4,7 @@ import Filelist
 import FileHash
 import Config
 import Utils
+import Planner
 
 import System.Directory
 import Control.Applicative
@@ -98,9 +99,9 @@ printPlan pinfo = putStrLn $ concat
 scale :: Word64 -> String
 scale x
     | x < 10*1024^1 = scale' x 0 "B"
-    | x < 10*1024^2 = scale' x 1 "kB"
-    | x < 10*1024^3 = scale' x 2 "MB"
-    | x < 10*1024^4 = scale' x 3 "GB"
-    | otherwise     = scale' x 4 "TB"
+    | x < 10*1024^2 = scale' x 1 "k"
+    | x < 10*1024^3 = scale' x 2 "M"
+    | x < 10*1024^4 = scale' x 3 "G"
+    | otherwise     = scale' x 4 "T"
   where
     scale' x order suffix = show (x `div` 1024^order) ++ suffix
