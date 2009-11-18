@@ -51,10 +51,20 @@ createPlan config pname psize = do
 
 createParts :: Config -> String -> PlanConfig -> IO ()
 createParts config pname pconfig = do
-    parts <- computePlan (partSizeLimit pconfig) <$> readEntriesLazily (fEntries config)
-    let numbers = replicateM 6 ['0'..'9']
+    entries <- readEntriesLazily (fEntries config)
+    case filter ((> partSizeLimit pconfig) . fromIntegral . size) entries of
+        (e:_) -> ioError . userError $ concat
+                    [ "Could not create plan; size of ", name e
+                    , " (", scale (fromIntegral $ size e), ") "
+                    , "is greater than the volume limit (", scale limit, ")!"
+                    ]
+        _     -> return ()
+    let parts   = computePlan (partSizeLimit pconfig) entries
+        numbers = replicateM 6 ['0'..'9']
+    putStrLn $ "Creating " ++ show (length parts) ++ " part(s)."
     mapM_ createPart $ zip parts numbers
   where
+    limit = partSizeLimit pconfig
     planPath = fRoot config ++ "/plans/" ++ pname
     createPart (es, nr) = writeEntries (planPath ++ "/parts/" ++ nr) es
 
