@@ -7,6 +7,7 @@ import qualified Plugin.Status
 import qualified Plugin.Add
 import qualified Plugin.Debug
 import qualified Plugin.Plan
+import qualified Plugin.Burn
 
 import Control.Monad
 import Data.List
@@ -20,6 +21,7 @@ commands =
     , ("debug",     wrap Plugin.Debug.run)
     , ("add",       wrap Plugin.Add.run)
     , ("plan",      wrap Plugin.Plan.run)
+    , ("burn",      wrap Plugin.Burn.run)
     , ("help",      Plugin.Help.run)
     ]
 
