@@ -27,7 +27,7 @@ run config args = do
         finalEntries = newEntries `M.union` oldEntries
         finalCount   = M.size finalEntries
     writeEntries config $ M.elems finalEntries
-    putStrLn $ show (finalCount - oldCount) ++ " file(s) added."
+    putStrLn $ show (finalCount - oldCount) ++ " new file(s) added."
   where
     setify = M.fromList . map (name &&& id)
 
