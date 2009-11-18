@@ -8,14 +8,23 @@ import Utils
 import System.Directory
 import Control.Applicative
 import Data.Word
+import Data.Char
+import Control.Monad
 
 data PlanConfig = PlanConfig
         { partSizeLimit :: Word64
         }
         deriving (Read, Show)
 
+data PlanInfo = PlanInfo
+        { planConfig :: PlanConfig
+        , partCount  :: Int
+        , planName   :: String
+        , planRoot   :: FilePath
+        }
+
 run :: Config -> [String] -> IO ()
-run config ["create", "",""] = run config []
+run config ["create", "", _] = run config []
 run config ["create", pname,psize] = createPlan config pname psize
 run config ["delete", pname] = deletePlan config pname
 run config ["list"] = listPlans config
@@ -28,28 +37,70 @@ defaultPlanConfig = PlanConfig
 
 createPlan :: Config -> String -> String -> IO ()
 createPlan config pname psize = do
-    let planPath = fRoot config ++ "/plans/" ++ pname
-        plancfg = defaultPlanConfig
+    sizeLimit <- case parseSize psize of
+        Just limit -> return limit
+        Nothing    -> ioError . userError $ "Invalid size: " ++ psize
+    let plancfg = defaultPlanConfig { partSizeLimit = sizeLimit }
     createDirectoryIfMissing True (planPath ++ "/parts")
     writeFile (planPath ++ "/config") (show plancfg)
     putStrLn "Plan created."
+  where
+    planPath  = fRoot config ++ "/plans/" ++ pname
+
+parseSize :: String -> Maybe Word64
+parseSize [] = Nothing
+parseSize size
+    | all isDigit size = Just $ read size
+    | otherwise = parseNumber (init size) <*> parseSuffix (toUpper $ last size)
+  where
+    parseNumber nr = if all isDigit nr then Just (read nr *) else Nothing
+    parseSuffix 'G' = Just $ 1024 ^ 3
+    parseSuffix 'M' = Just $ 1024 ^ 2
+    parseSuffix 'K' = Just $ 1024 ^ 1
+    parseSuffix _   = Nothing
 
 deletePlan :: Config -> String -> IO ()
 deletePlan config pname = do
-    let planPath = fRoot config ++ "/plans/" ++ pname
     removeDirectoryRecursive planPath
     putStrLn "Plan deleted."
+  where
+    planPath = fRoot config ++ "/plans/" ++ pname
 
 listPlans :: Config -> IO ()
 listPlans config = do
-    plans <- saneDirectoryContents (fRoot config ++ "/plans")
-    sizes <- mapM (getSize . (++"/parts") . ((fRoot config ++ "/plans/") ++)) plans
-    if null plans
+    info <- mapM (getPlanInfo config) =<< saneDirectoryContents (fRoot config ++ "/plans")
+    if null info
         then putStrLn "No plans."
-        else mapM_ printPlan $ zip plans sizes
+        else mapM_ printPlan info
+
+getPlanInfo :: Config -> String -> IO PlanInfo
+getPlanInfo config pname = do
+    count  <- getSize (planPath ++ "/parts") 
+    config <- read <$> readFile (planPath ++ "/config")
+    return $ PlanInfo
+        { planConfig = config
+        , partCount  = count
+        , planName   = pname
+        , planRoot   = planPath
+        }
+  where
+    planPath  = fRoot config ++ "/plans/" ++ pname
 
 getSize :: String -> IO Int
 getSize ppath = length <$> saneDirectoryContents ppath
 
-printPlan :: (String, Int) -> IO ()
-printPlan (pname, psize) = putStrLn $ pname ++ "\t: " ++ show psize ++ " part(s)"
+printPlan :: PlanInfo -> IO ()
+printPlan pinfo = putStrLn $ concat 
+    [ planName pinfo, "\t: ",show $ partCount pinfo, " part(s) limited to "
+    , scale (partSizeLimit $ planConfig pinfo)
+    ]
+
+scale :: Word64 -> String
+scale x
+    | x < 10*1024^1 = scale' x 0 "B"
+    | x < 10*1024^2 = scale' x 1 "kB"
+    | x < 10*1024^3 = scale' x 2 "MB"
+    | x < 10*1024^4 = scale' x 3 "GB"
+    | otherwise     = scale' x 4 "TB"
+  where
+    scale' x order suffix = show (x `div` 1024^order) ++ suffix
