@@ -39,12 +39,15 @@ classify status =
 
 addEntry :: String -> IO [Entry]
 addEntry fn = do
-    status <- getFileStatus fn
-    case classify status of
-        Regular   -> (:[]) <$> addFile fn status
-        Directory -> addDir fn
-        Symlink   -> addEntry =<< readSymbolicLink fn
-        Other     -> (putStrLn $ "Not a regular file: " ++ fn) >> return []
+    exists <- fileExist fn
+    if not exists
+        then return []
+        else getFileStatus fn >>= \status ->
+            case classify status of
+                Regular   -> (:[]) <$> addFile fn status
+                Directory -> addDir fn
+                Symlink   -> addEntry =<< readSymbolicLink fn
+                Other     -> (putStrLn $ "Not a regular file: " ++ fn) >> return []
 
 addDir :: String -> IO [Entry]
 addDir fn = concat <$> (mapM addEntry . map (prefix++) =<< saneDirectoryContents fn)
