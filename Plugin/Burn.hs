@@ -5,6 +5,38 @@ import Config
 import Utils
 
 import Control.Applicative
+import System.Process
+import System.FilePath
+import System.IO
+import Data.List
+
+burnCommand :: String
+burnCommand = intercalate " -"
+    [ "mkisofs", "A hackup", "input-charset utf8", "J", "l", "m .hackup"
+    , "m '*~'", "path-list -", "r", "vv", "graft-points", "o cd.iso" -- "Z /dev/hda"
+    ]
+
+-- Input format: [(LocalFile, DvdFile)]
+formatList :: [(FilePath,FilePath)] -> String
+formatList = concatMap (\(from,to) -> to ++ "=" ++ from ++ "\n")
+
+calcPath :: Entry -> (FilePath,FilePath)
+calcPath e = (name e, name e)
+
+recode :: Entry -> String
+recode e = name e ++ "=" ++ name e
+
+burnPart :: Config -> String -> String -> IO ()
+burnPart config pname partno = do
+    putStrLn $ "Burning part " ++ partno
+    putStrLn burnCommand
+    (Just sin, _, _, p) <- createProcess (shell $ burnCommand){ std_in = CreatePipe }
+    hPutStr sin . unlines . map recode =<< readEntriesLazily partPath
+    hClose sin
+    waitForProcess p
+    return ()
+  where
+    partPath = fRoot config ++ "/plans/" ++ pname ++ "/parts/" ++ partno
 
 run :: Config -> [String] -> IO ()
 run config ("first":pname:args) = resetBurner config pname "000000" >> burnNext config pname args
@@ -18,7 +50,7 @@ burnNext :: Config -> String -> [String] -> IO ()
 burnNext config pname args = do
     current <- strictRead (planPath ++ "/burn")
     resetBurner config pname (next current)
-    putStrLn $ "Burning " ++ current
+    burnPart config pname current
   where
     planPath = fRoot config ++ "/plans/" ++ pname
 
