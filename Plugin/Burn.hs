@@ -12,8 +12,9 @@ import Data.List
 
 burnCommand :: String
 burnCommand = intercalate " -"
-    [ "mkisofs", "A hackup", "input-charset utf8", "J", "l", "m .hackup"
-    , "m '*~'", "path-list -", "r", "vv", "graft-points", "o cd.iso" -- "Z /dev/hda"
+    [ "growisofs", "Z /dev/hda", "dry-run", "speed=4", "dvd-compat"
+    , "A hackup", "input-charset utf8", "J", "l", "m .hackup"
+    , "m '*~'", "path-list -", "r", "v", "graft-points"
     ]
 
 -- Input format: [(LocalFile, DvdFile)]
